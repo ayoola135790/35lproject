@@ -1,0 +1,1 @@
+// Routes for blood sugar data-related actions (fetch, update, analyze data)
