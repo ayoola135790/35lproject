@@ -1,0 +1,1 @@
+// Defines blood sugar data model/schema (e.g., date, blood sugar levels)
