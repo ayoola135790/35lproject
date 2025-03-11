@@ -3,15 +3,26 @@ import { useNavigate } from "react-router-dom"; // import useNavigate
 // import "./LoginPage.css"; // Import CSS for styling
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState(""); // Can be email, phone, or username
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevents page refresh
-    console.log("Logging in with:", email, password);
-    // TODO: Send data to backend API for authentication
+    console.log("Logging in with:", identifier, password);
+    // Determine the type of identifier
+    let identifierType = "username"; // Default to username
 
-    //
+    if (identifier.includes("@")) {
+        identifierType = "email"; // Email must contain '@'
+    } 
+    else if (/^\+?\d{10,15}$/.test(identifier)) {
+        identifierType = "phone"; // Phone number contains only digits and may start with '+'
+    }
+
+    console.log(`Logging in with ${identifierType}: ${identifier}`); //TEST
+
+    // TODO: Send identifierType along with credentials to backend
     navigate("/");
   };
 
@@ -20,10 +31,10 @@ const LoginPage = () => {
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          placeholder="Email, Phone, or Username"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
           required
         />
         <input
@@ -37,7 +48,7 @@ const LoginPage = () => {
       </form>
 
       {/* Debugging: Show real-time input values */}
-      <p>Email: {email}</p>
+      <p>Email: {identifier}</p>
       <p>Password: {password}</p>
     </div>
   );
