@@ -7,12 +7,20 @@ function HomePage() {
       <h1>Home</h1>
       <p>sup</p>
 
-      {/* Clickable text that routes to the SignUp page */}
-      <Link to="/login">
-        <p style={{ color: "blue", cursor: "pointer", textDecoration: "underline" }}>
-          Route
-        </p>
-      </Link>
+      {/* Navigation links */}
+      <div style={{ display: "flex", gap: "20px" }}>
+        <Link to="/login">
+          <p style={{ color: "blue", cursor: "pointer", textDecoration: "underline" }}>
+            Login
+          </p>
+        </Link>
+        
+        <Link to="/graph">
+          <p style={{ color: "blue", cursor: "pointer", textDecoration: "underline" }}>
+            Blood Sugar Analysis
+          </p>
+        </Link>
+      </div>
     </>
   );
 }
