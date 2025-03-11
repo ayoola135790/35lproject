@@ -1,4 +1,4 @@
-import csv
+"""import csv
 
 # Example API response (Replace with actual API call)
 blood_sugar_data = [
@@ -21,4 +21,4 @@ with open(csv_file, mode="a", newline="") as file:
     for entry in blood_sugar_data:
         writer.writerow([entry["timestamp"], entry["blood_sugar"], entry["source"]])
 
-print("Data saved to CSV successfully.")
+print("Data saved to CSV successfully.")"""

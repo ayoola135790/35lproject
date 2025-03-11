@@ -72,3 +72,26 @@ h1 {
   text-align: center;
   margin: 20px 0;
 }
+.time-range-selector {
+  margin-bottom: 20px;
+}
+
+.time-range-button {
+  padding: 10px 20px;
+  margin-right: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.time-range-button.active {
+  background-color: #3498db;
+  color: white;
+  border-color: #3498db;
+}
+
+.time-range-button:hover {
+  background-color: #ddd;
+}
