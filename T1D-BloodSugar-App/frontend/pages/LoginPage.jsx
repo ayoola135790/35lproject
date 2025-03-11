@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // import useNavigate
 // import "./LoginPage.css"; // Import CSS for styling
 
 const LoginPage = () => {
@@ -9,6 +10,9 @@ const LoginPage = () => {
     e.preventDefault(); // Prevents page refresh
     console.log("Logging in with:", email, password);
     // TODO: Send data to backend API for authentication
+
+    //
+    navigate("/");
   };
 
   return (
