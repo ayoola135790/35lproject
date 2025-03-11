@@ -1,1 +1,8 @@
-// Routes for blood sugar data-related actions (fetch, update, analyze data)
+const express = require('express');
+const router = express.Router();
+const sugarDataController = require('../controllers/sugarDataController');
+
+router.get('/blood-sugar-data', sugarDataController.getBloodSugarData);
+router.post('/analyze-blood-sugar', sugarDataController.analyzeBloodSugar);
+
+module.exports = router;
