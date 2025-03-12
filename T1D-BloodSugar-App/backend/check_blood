@@ -1,0 +1,6 @@
+from pydexcom import Dexcom
+dexcom = Dexcom(username="PHONE", password="PASSWORD") # phone number / My data for dexcom 
+
+glucose_reading = dexcom.get_current_glucose_reading()
+print(glucose_reading)
+print(glucose_reading.datetime)
