@@ -1,81 +1,84 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // we use this to navigate to another page after signup
+import { useNavigate } from "react-router-dom"; // import useNavigate
+import "../styles/SignupPage.css";
 
-const SignUpPage = () => {
-  // setting up state variables for the form inputs
-  const [email, setEmail] = useState(""); // email input
-  const [password, setPassword] = useState(""); // password input
-  const [confirmPassword, setConfirmPassword] = useState(""); // to confirm the password
-  const [fullName, setFullName] = useState(""); // optional, the user's full name
-
-  const navigate = useNavigate(); // hook to handle navigation after submitting the form
+const SignupPage = () => {
+  const [name, setName] = useState("");
+  const [identifier, setIdentifier] = useState(""); // Can be email, phone, or username
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
-    e.preventDefault(); // prevent page from refreshing when we submit the form
-
-    // just logging to check the values (this will be replaced with actual backend logic later)
-    console.log("signing up with:", email, password, fullName);
-
-    // checking if the passwords match
+    e.preventDefault(); // Prevents page refresh
     if (password !== confirmPassword) {
-      alert("passwords don't match! please try again."); // if they don't match, show a message
-      return; // exit the function if the passwords don't match
+      alert("Passwords do not match!");
+      return;
     }
-
-    // TODO: send signup info to the backend to create the account and link it to SugarMate
-    // (this is where you would make an API call to your backend)
-
-    // once signup is successful, navigate to the homepage or another page (like a dashboard)
-    navigate("/"); // this will redirect to the home page after successful signup
+    console.log("Signing up with:", name, identifier, password);
+    // TODO: Send signup data to backend
+    navigate("/login");
   };
 
   return (
-    <div className="signup-container">
-      <h2>sign up</h2>
-      <p>note: make sure your details match your sugarmate account to sync your data properly.</p>
-      <form onSubmit={handleSubmit}>
-        {/* input for full name */}
-        <input
-          type="text"
-          placeholder="full name"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)} // update state when the user types
-          required // this field is required
-        />
-        {/* input for email */}
-        <input
-          type="email"
-          placeholder="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)} // update state when the user types
-          required // this field is required
-        />
-        {/* input for password */}
-        <input
-          type="password"
-          placeholder="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)} // update state when the user types
-          required // this field is required
-        />
-        {/* input for confirming password */}
-        <input
-          type="password"
-          placeholder="confirm password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)} // update state when the user types
-          required // this field is required
-        />
-        {/* the button to submit the form */}
-        <button type="submit">sign up</button>
-      </form>
-
-      {/* just showing the values for debugging purposes */}
-      <p>email: {email}</p>
-      <p>full name: {fullName}</p>
-      <p>password: {password}</p>
+    <div className="signup-page">
+      <div className="signup-container">
+        <div className="branding">
+          <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+            <path d="M50 10c-10 0-20 10-20 20 0 20 20 40 20 40s20-20 20-40c0-10-10-20-20-20z" fill="#4CAF50"/>
+            <circle cx="50" cy="30" r="3" fill="#ffffff"/>
+            <circle cx="45" cy="35" r="3" fill="#ffffff"/>
+            <circle cx="55" cy="35" r="3" fill="#ffffff"/>
+            <circle cx="50" cy="40" r="3" fill="#ffffff"/>
+            <line x1="50" y1="30" x2="45" y2="35" stroke="#ffffff" stroke-width="2"/>
+            <line x1="50" y1="30" x2="55" y2="35" stroke="#ffffff" stroke-width="2"/>
+            <line x1="45" y1="35" x2="50" y2="40" stroke="#ffffff" stroke-width="2"/>
+            <line x1="55" y1="35" x2="50" y2="40" stroke="#ffffff" stroke-width="2"/>
+          </svg>
+          <h1>GlucoLog</h1>
+        </div>
+        <h2>Sign Up</h2>
+        <p className="note">
+          This app is tied to Sugarmate. Please keep your sign-in information consistent so that we can log in to that account and analyze your blood sugar data.
+        </p>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <input
+            type="text"
+            placeholder="Email, Phone, or Username"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+          <button type="submit">Sign Up</button>
+        </form>
+        {/* Login Link */}
+        <p className="login-link">
+          Already have an account? <a href="/login">Login</a>
+        </p>
+      </div>
     </div>
   );
 };
 
-export default SignUpPage;
+export default SignupPage;
