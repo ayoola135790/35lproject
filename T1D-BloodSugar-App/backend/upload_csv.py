@@ -1,13 +1,10 @@
-#used to retrieve and print that the words are inserted
-
+#this is used to upload the blood sugar data csv into py
 import pandas as pd
 from pymongo import MongoClient
 
 # Connect to MongoDB
 client =
-MongoClient("mongodb+srv://<ka18>:<user>cluster0.ktnpb.mongodb.net/?
-retryWrites=true&w=majority&appName=Cluster0") # Replace with your
-MongoDB URI
+MongoClient("mongodb+srv://kingayoola18:sarah@cluster0.ktnpb.mongodb.net/? retryWrites=true&w=majority&appName=Cluster0") # Replace with your MongoDB URI
 db = client["health_monitor"]
 collection = db["blood_sugar_data"]
 
