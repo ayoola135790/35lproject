@@ -41,7 +41,8 @@ const LoginPage = () => {
           <line x1="45" y1="35" x2="50" y2="40" stroke="#ffffff" stroke-width="2"/>
           <line x1="55" y1="35" x2="50" y2="40" stroke="#ffffff" stroke-width="2"/>
         </svg>
-        <h1>GlucoLog</h1>
+        <h1> <a href="/"> GlucoLog</a> 
+        </h1>
       </div>
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>

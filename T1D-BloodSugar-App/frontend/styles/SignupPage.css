@@ -15,6 +15,10 @@
   text-align: center;
   width: 300px;
 }
+.signup-container a {
+  color: #4CAF50;
+  text-decoration: none;
+}
 
 .branding {
   display: flex;
