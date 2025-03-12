@@ -27,6 +27,7 @@ const LoginPage = () => {
   };
 
   return (
+  <div className="login-page">
     <div className="login-container">
        <div className="branding">
         <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -64,6 +65,7 @@ const LoginPage = () => {
       <p className="signup-link">
           Don't have an account? <a href="/signup">Sign Up</a>
         </p>
+    </div>
     </div>
   );
 };
