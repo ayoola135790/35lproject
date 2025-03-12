@@ -1,0 +1,97 @@
+.container {
+  font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.chart-container {
+  margin-bottom: 30px;
+  position: relative;
+  height: 400px;
+}
+
+.readings-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.readings-table th, .readings-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.readings-table th {
+  background-color: #f8f9fa;
+  color: #2c3e50;
+}
+
+.readings-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.analysis-result {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 5px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.analyze-button {
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.analyze-button:hover {
+  background-color: #2980b9;
+}
+
+.analyze-button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.loading {
+  text-align: center;
+  margin: 20px 0;
+}
+.time-range-selector {
+  margin-bottom: 20px;
+}
+
+.time-range-button {
+  padding: 10px 20px;
+  margin-right: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.time-range-button.active {
+  background-color: #3498db;
+  color: white;
+  border-color: #3498db;
+}
+
+.time-range-button:hover {
+  background-color: #ddd;
+}
