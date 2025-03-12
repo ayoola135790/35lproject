@@ -5,9 +5,7 @@ from pymongo import MongoClient
 
 # Connect to MongoDB
 client =
-MongoClient("mongodb+srv://<ka18>:<user>cluster0.ktnpb.mongodb.net/?
-retryWrites=true&w=majority&appName=Cluster0") # Replace with your
-MongoDB URI
+MongoClient("") # Replace with your MongoDB URI
 db = client["health_monitor"]
 collection = db["blood_sugar_data"]
 
