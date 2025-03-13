@@ -1,14 +1,19 @@
 const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
+const fs = require('fs');
 const sugarDataRoutes = require('./routes/sugarDataRoutes');
 const authRoutes = require('./routes/authRoutes'); 
 
 dotenv.config();
 
+const dbDir = path.join(__dirname, 'db');
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
 const app = express();
 const BASE_PORT = process.env.PORT || 5000;
-
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -20,10 +25,8 @@ app.use((req, res, next) => {
   next();
 });
 
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 
 app.use('/api', sugarDataRoutes);
 app.use('/auth', authRoutes); 
@@ -35,7 +38,6 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.resolve(__dirname, '../frontend/dist', 'index.html'));
   });
 }
-
 
 function startServer(port) {
   try {

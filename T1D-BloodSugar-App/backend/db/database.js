@@ -26,13 +26,33 @@ function initializeDatabase() {
       )
     `;
     
-    db.run(createUsersTable, (err) => {
-      if (err) {
-        console.error('Error creating users table:', err.message);
-        throw err;
-      } else {
-        console.log('Database initialized with users table');
-      }
+    const createBloodSugarTable = `
+      CREATE TABLE IF NOT EXISTS blood_sugar_data (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        blood_sugar_level INTEGER NOT NULL,
+        timestamp TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      )
+    `;
+    
+    db.serialize(() => {
+      db.run(createUsersTable, (err) => {
+        if (err) {
+          console.error('Error creating users table:', err.message);
+        } else {
+          console.log('Users table initialized');
+        }
+      });
+      
+      db.run(createBloodSugarTable, (err) => {
+        if (err) {
+          console.error('Error creating blood_sugar_data table:', err.message);
+        } else {
+          console.log('Blood sugar data table initialized');
+        }
+      });
     });
   } catch (error) {
     console.error('Error initializing database:', error);
@@ -215,6 +235,46 @@ const userFunctions = {
   }
 };
 
+const bloodSugarFunctions = {
+  async addBloodSugarReading(userId, bloodSugarLevel, timestamp) {
+    return new Promise((resolve, reject) => {
+      const insertReading = `
+        INSERT INTO blood_sugar_data (user_id, blood_sugar_level, timestamp)
+        VALUES (?, ?, ?)
+      `;
+      
+      db.run(insertReading, [userId, bloodSugarLevel, timestamp], function(err) {
+        if (err) {
+          console.error('Error adding blood sugar reading:', err.message);
+          resolve({ success: false, error: err.message });
+        } else {
+          resolve({ success: true, id: this.lastID });
+        }
+      });
+    });
+  },
+  
+  async getBloodSugarReadings(userId) {
+    return new Promise((resolve, reject) => {
+      const query = `
+        SELECT blood_sugar_level, timestamp
+        FROM blood_sugar_data
+        WHERE user_id = ?
+        ORDER BY timestamp ASC
+      `;
+      
+      db.all(query, [userId], (err, rows) => {
+        if (err) {
+          console.error('Error fetching blood sugar readings:', err.message);
+          resolve({ success: false, error: err.message });
+        } else {
+          resolve({ success: true, data: rows });
+        }
+      });
+    });
+  }
+};
+
 try {
   initializeDatabase();
 } catch (err) {
@@ -223,5 +283,6 @@ try {
 
 module.exports = {
   db,
-  userFunctions
+  userFunctions,
+  bloodSugarFunctions
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
+import BloodSugarInputForm from "../components/BloodSugarInputForm";
 import "../styles/graphPage.css";
 
 function GraphPage() {
@@ -11,7 +12,7 @@ function GraphPage() {
   const [timeRange, setTimeRange] = useState("all"); // "all", "1d", "1w", or "1m"
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchBloodSugarData();
@@ -32,9 +33,11 @@ function GraphPage() {
   const fetchBloodSugarData = async () => {
     try {
       const savedPort = localStorage.getItem('backendPort');
+      const userId = JSON.parse(localStorage.getItem('user')).id;
+      
       if (savedPort) {
         try {
-          const response = await fetch(`http://localhost:${savedPort}/api/blood-sugar-data`);
+          const response = await fetch(`http://localhost:${savedPort}/api/blood-sugar-data/${userId}`);
           if (response.ok) {
             const data = await response.json();
             setBloodSugarData(data);
@@ -51,7 +54,7 @@ function GraphPage() {
       for (const port of possiblePorts) {
         try {
           console.log(`Trying to connect to backend on port ${port}...`);
-          const response = await fetch(`http://localhost:${port}/api/blood-sugar-data`);
+          const response = await fetch(`http://localhost:${port}/api/blood-sugar-data/${userId}`);
           if (response.ok) {
             data = await response.json();
             window.backendPort = port;
@@ -217,9 +220,17 @@ function GraphPage() {
     navigate("/journal");
   };
 
+  const handleFormSubmitSuccess = () => {
+    fetchBloodSugarData();
+  };
+
   return (
     <div className="container">
       <h1>Blood Sugar Analysis</h1>
+      
+      {/* Add the BloodSugarInputForm component */}
+      <BloodSugarInputForm onSubmitSuccess={handleFormSubmitSuccess} />
+      
       <div className="button-group">
         <button 
           className="analyze-button" 
@@ -236,6 +247,7 @@ function GraphPage() {
         </button>
       </div>
       
+
       {isLoading && <div className="loading">Analyzing data...</div>}
       
       <div className="time-range-selector">
