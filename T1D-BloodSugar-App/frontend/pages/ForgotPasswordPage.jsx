@@ -4,6 +4,9 @@ import "../styles/ForgotPasswordPage.css";
 
 const ForgotPasswordPage = () => {
   const [username, setUsername] = useState("");
+  const [securityQuestion, setSecurityQuestion] = useState("");
+  const [securityAnswer, setSecurityAnswer] = useState("");
+  const [showSecurityQuestion, setShowSecurityQuestion] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -20,7 +23,7 @@ const ForgotPasswordPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ identifier: username }),
+        body: JSON.stringify({ identifier: username, securityQuestion, securityAnswer }),
       });
       
       const data = await response.json();
@@ -29,7 +32,7 @@ const ForgotPasswordPage = () => {
         localStorage.setItem('resetUsername', username);
         navigate("/new-password");
       } else {
-        setError(data.error || "User not found");
+        setError(data.error || "User not found or incorrect security answer");
       }
     } catch (err) {
       console.error('Forgot password error:', err);
@@ -67,8 +70,33 @@ const ForgotPasswordPage = () => {
             onChange={(e) => setUsername(e.target.value)}
             required
           />
+          {showSecurityQuestion && (
+            <>
+              <input
+                type="text"
+                placeholder="Security Question"
+                value={securityQuestion}
+                onChange={(e) => setSecurityQuestion(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Security Answer"
+                value={securityAnswer}
+                onChange={(e) => setSecurityAnswer(e.target.value)}
+                required
+              />
+            </>
+          )}
           <button type="submit" disabled={loading}>
             {loading ? "Processing..." : "Reset Password"}
+          </button>
+          <button 
+            type="button" 
+            onClick={() => setShowSecurityQuestion(true)} 
+            style={{ marginTop: '10px' }}
+          >
+            Create Security Question
           </button>
         </form>
 
