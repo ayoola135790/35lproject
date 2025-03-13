@@ -8,6 +8,8 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "better-sqlite3": "^9.2.2",
     "csv-parse": "^5.6.0",
     "dotenv": "^16.3.1",
     "express": "^4.21.2",
@@ -16,5 +18,11 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
-  }
+  },
+  "json.schemas": [
+    {
+      "fileMatch": ["package.json"],
+      "url": ""
+    }
+  ]
 }

@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
 const sugarDataRoutes = require('./routes/sugarDataRoutes');
-
+const authRoutes = require('./routes/authRoutes'); 
 
 dotenv.config();
 
@@ -26,6 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 app.use('/api', sugarDataRoutes);
+app.use('/auth', authRoutes); 
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../frontend/dist')));

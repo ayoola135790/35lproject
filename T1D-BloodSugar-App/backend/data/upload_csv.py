@@ -3,8 +3,7 @@ import pandas as pd
 from pymongo import MongoClient
 
 # Connect to MongoDB
-client =
-MongoClient("") # Replace with your MongoDB URI
+client = MongoClient("") 
 db = client["health_monitor"]
 collection = db["blood_sugar_data"]
 
