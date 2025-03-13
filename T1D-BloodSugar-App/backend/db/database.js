@@ -103,6 +103,66 @@ const userFunctions = {
       console.error('Error verifying user:', error);
       return { success: false, error: error.message };
     }
+  },
+
+  async findUserByIdentifier(identifier) {
+    try {
+      let field = 'username';
+      if (identifier.includes('@')) {
+        field = 'email';
+      } else if (/^\+?\d{10,15}$/.test(identifier)) {
+        field = 'phone';
+      }
+      
+      const query = `SELECT * FROM users WHERE ${field} = ?`;
+      const getUser = db.prepare(query);
+      const user = getUser.get(identifier);
+      
+      if (!user) {
+        return { success: false, error: 'User not found' };
+      }
+      
+      const { password_hash, ...userWithoutPassword } = user;
+      return { success: true, user: userWithoutPassword };
+    } catch (error) {
+      console.error('Error finding user:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  async updateUserPassword(identifier, newPassword) {
+    try {
+      let field = 'username';
+      if (identifier.includes('@')) {
+        field = 'email';
+      } else if (/^\+?\d{10,15}$/.test(identifier)) {
+        field = 'phone';
+      }
+      
+      // First check if the user exists
+      const userQuery = `SELECT id FROM users WHERE ${field} = ?`;
+      const getUser = db.prepare(userQuery);
+      const user = getUser.get(identifier);
+      
+      if (!user) {
+        return { success: false, error: 'User not found' };
+      }
+      
+      const passwordHash = await hashPassword(newPassword);
+      
+      const updatePassword = db.prepare(`
+        UPDATE users 
+        SET password_hash = ? 
+        WHERE ${field} = ?
+      `);
+      
+      updatePassword.run(passwordHash, identifier);
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating password:', error);
+      return { success: false, error: error.message };
+    }
   }
 };
 

@@ -4,14 +4,39 @@ import "../styles/ForgotPasswordPage.css";
 
 const ForgotPasswordPage = () => {
   const [username, setUsername] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Requesting password reset for:", username);
-
-    // TODO: Send username to backend for password reset request
-    navigate("/new-password"); // Navigate to the new password page
+    setError("");
+    setLoading(true);
+    
+    try {
+      const port = localStorage.getItem('backendPort') || 5000;
+      const response = await fetch(`http://localhost:${port}/auth/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ identifier: username }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        localStorage.setItem('resetUsername', username);
+        navigate("/new-password");
+      } else {
+        setError(data.error || "User not found");
+      }
+    } catch (err) {
+      console.error('Forgot password error:', err);
+      setError('Connection error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,6 +58,7 @@ const ForgotPasswordPage = () => {
         </div>
 
         <h2>Forgot Password</h2>
+        {error && <p className="error-message">{error}</p>}
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -41,7 +67,9 @@ const ForgotPasswordPage = () => {
             onChange={(e) => setUsername(e.target.value)}
             required
           />
-          <button type="submit">Reset Password</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Processing..." : "Reset Password"}
+          </button>
         </form>
 
         <p className="back-to-login">
