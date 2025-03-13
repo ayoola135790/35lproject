@@ -109,9 +109,6 @@ const SignupPage = () => {
           <h1> <a href="/" style={{ textDecoration: 'none', color: 'inherit' }}> GlucoLog</a> </h1>
         </div>
         <h2>Sign Up</h2>
-        <p className="note">
-          This app is tied to DEXCOM. Please keep your sign-in information consistent so that we can log in to that account and analyze your blood sugar data.
-        </p>
         {error && <p className="error-message">{error}</p>}
         <form onSubmit={handleSubmit}>
           <input
