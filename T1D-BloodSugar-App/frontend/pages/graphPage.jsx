@@ -334,6 +334,14 @@ function GraphPage() {
         >
           Go to Journal
         </button>
+        <button className = "signoutbutton"
+          onClick={() => {
+            localStorage.removeItem('user');
+            navigate("/login");
+          }}
+          >
+          Sign Out
+          </button>
       </div>
       
 
