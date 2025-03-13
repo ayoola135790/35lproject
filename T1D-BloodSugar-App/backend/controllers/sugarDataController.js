@@ -1,14 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const { OpenAI } = require('openai');
+const { bloodSugarFunctions } = require('../db/database');
 require('dotenv').config();
-
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// Sample blood sugar data for demo purposes in case there is no CSV file
+// Sample blood sugar data for demo purposes in case there is no data
 const sampleBloodSugarData = [
   { timestamp: "2024-01-01 06:00:00", blood_sugar_level: 95 },
   { timestamp: "2024-01-01 08:30:00", blood_sugar_level: 145 },
@@ -53,22 +53,39 @@ const parseCSV = (csvText) => {
   });
 };
 
-// Get blood sugar data
-exports.getBloodSugarData = async (req, res) => {
+
+exports.getUserBloodSugarData = async (req, res) => {
+
   try {
-    const csvPath = path.join(__dirname, '../data/blood_sugar_data.csv');
-    console.log('Looking for CSV file at:', csvPath);
+    const userId = req.params.userId;
     
-    if (fs.existsSync(csvPath)) {
-      console.log('CSV file found');
-      const csvData = fs.readFileSync(csvPath, 'utf8');
-      console.log('CSV data (first 100 chars):', csvData.substring(0, 100));
-      const parsedData = parseCSV(csvData);
-      console.log('Parsed data (first 2 items):', parsedData.slice(0, 2));
-      res.json(parsedData);
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+    
+    const result = await bloodSugarFunctions.getBloodSugarReadings(userId);
+    
+    if (result.success) {
+      if (result.data && result.data.length > 0) {
+        res.json(result.data);
+      } else {
+        try {
+          const csvPath = path.join(__dirname, '../data/blood_sugar_data.csv');
+          if (fs.existsSync(csvPath)) {
+            const csvData = fs.readFileSync(csvPath, 'utf8');
+            const parsedData = parseCSV(csvData);
+            res.json(parsedData);
+          } else {
+            // If no CSV file, use the sample data
+            res.json(sampleBloodSugarData);
+          }
+        } catch (fileError) {
+          console.error('Error reading CSV file:', fileError);
+          res.json(sampleBloodSugarData);
+        }
+      }
     } else {
-      console.log('CSV file not found, using sample data');
-      res.json(sampleBloodSugarData);
+      throw new Error(result.error);
     }
   } catch (error) {
     console.error('Error fetching blood sugar data:', error);
@@ -76,7 +93,43 @@ exports.getBloodSugarData = async (req, res) => {
   }
 };
 
-// Analyze blood sugar data by calling OpenAI api
+exports.addBloodSugarData = async (req, res) => {
+  try {
+    const { userId, bloodSugarLevel, timestamp } = req.body;
+    
+    if (!userId || !bloodSugarLevel || !timestamp) {
+      return res.status(400).json({ error: 'User ID, blood sugar level, and timestamp are required' });
+    }
+    
+    let formattedTimestamp;
+    if (timestamp.includes('T')) {
+      const [datePart, timePart] = timestamp.split('T');
+      formattedTimestamp = `${datePart} ${timePart}:00`;
+    } else {
+      formattedTimestamp = timestamp;
+    }
+    
+    const result = await bloodSugarFunctions.addBloodSugarReading(
+      userId, 
+      bloodSugarLevel, 
+      formattedTimestamp
+    );
+    
+    if (result.success) {
+      res.status(201).json({ 
+        success: true, 
+        message: 'Blood sugar data added successfully',
+        id: result.id
+      });
+    } else {
+      throw new Error(result.error);
+    }
+  } catch (error) {
+    console.error('Error adding blood sugar data:', error);
+    res.status(500).json({ error: 'Failed to add blood sugar data' });
+  }
+};
+
 exports.analyzeBloodSugar = async (req, res) => {
   try {
     console.log('Received analysis request with body:', req.body);
