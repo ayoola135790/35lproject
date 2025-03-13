@@ -36,7 +36,10 @@ const SignupPage = () => {
       for (const port of possiblePorts) {
         try {
           console.log(`Trying to connect to auth endpoint on port ${port}...`);
-          response = await fetch(`http://localhost:${port}/auth/signup`, {
+          const url = `http://localhost:${port}/auth/signup`;
+          console.log(`Attempting fetch to: ${url}`);
+          
+          response = await fetch(url, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -45,15 +48,22 @@ const SignupPage = () => {
               name, 
               identifier, 
               password,
-              securityAnswer
+              securityAnswer,
+              confirmPassword: confirmPassword
             }),
           });
           
+          console.log(`Response from ${port}:`, response.status, response.statusText);
+          
           if (!response.ok) {
+            console.log(`Server responded with error status: ${response.status}`);
+            const errorText = await response.text();
+            console.log(`Error details: ${errorText}`);
             throw new Error(`Server responded with status ${response.status}`);
           }
 
           data = await response.json();
+          console.log(`Data received from ${port}:`, data);
           window.backendPort = port;
           localStorage.setItem('backendPort', port);
           console.log(`Successfully connected to auth endpoint on port ${port}`);
