@@ -2,13 +2,16 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/WelcomePage.css";
 
+// welcomepage component
 const WelcomePage = () => {
   const navigate = useNavigate();
 
+  // handle login button click
   const handleLogin = () => {
     navigate("/login");
   };
 
+  // handle signup button click
   const handleSignup = () => {
     navigate("/signup");
   };
@@ -30,7 +33,7 @@ const WelcomePage = () => {
           </svg>
           <h1>GlucoLog</h1>
         </div>
-        <h2>Welcome to GlucoLog</h2>
+        <h2>Welcome to Glucolog</h2>
         <p>Track and manage your blood sugar levels with ease.</p>
         <div className="button-group">
           <button onClick={handleLogin}>Login</button>

@@ -3,8 +3,8 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: rgb(240, 248, 255); /* Same blue background as login page */
-  font-family: Arial, sans-serif; /* Same font as login page */
+  background-color: rgb(240, 248, 255); /* same blue background as login page */
+  font-family: Arial, sans-serif; /* same font as login page */
 }
 
 .signup-container {
@@ -41,7 +41,6 @@
   color: #009942;
   margin-bottom: 20px;
 }
-
 
 .signup-container .note {
   font-size: 0.9rem;

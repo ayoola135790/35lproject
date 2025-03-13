@@ -23,7 +23,7 @@ const LoginPage = () => {
     console.log(`Logging in with ${identifierType}: ${identifier}`); //TEST
 
     // TODO: Send identifierType along with credentials to backend
-    navigate("/");
+    navigate("/graphPage"); // Navigate to the graph page after login
   };
 
   return (
