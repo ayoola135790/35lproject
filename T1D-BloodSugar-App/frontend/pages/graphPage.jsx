@@ -79,62 +79,105 @@ function GraphPage() {
   };
 
   const parseTimestamp = (timestamp) => {
-    // Convert "YYYY-MM-DD HH:mm:ss" to a valid Date object
-    const [datePart, timePart] = timestamp.split(" ");
-    const [year, month, day] = datePart.split("-");
-    const [hour, minute, second] = timePart.split(":");
-    return new Date(year, month - 1, day, hour, minute, second);
+    if (!timestamp) return null;
+    
+    try {
+      let datePart, timePart;
+      
+      if (timestamp.includes(" ")) {
+        [datePart, timePart] = timestamp.split(" ");
+      } else if (timestamp.includes("T")) {
+        [datePart, timePart] = timestamp.split("T");
+      } else {
+        datePart = timestamp;
+        timePart = "00:00:00";
+      }
+      
+      if (!datePart) return null;
+
+      const dateComponents = datePart.split("-").map(Number);
+      if (dateComponents.length !== 3) return null;
+      
+      const [year, month, day] = dateComponents;
+      if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
+      
+      let hour = 0, minute = 0, second = 0;
+      if (timePart) {
+        const timeParts = timePart.split(":");
+        hour = Number(timeParts[0] || 0);
+        minute = Number(timeParts[1] || 0);
+        second = Number(timeParts[2] || 0);
+        
+        if (isNaN(hour) || isNaN(minute) || isNaN(second)) {
+          hour = 0;
+          minute = 0;
+          second = 0;
+        }
+      }
+      
+
+      return new Date(year, month - 1, day, hour, minute, second);
+    } catch (error) {
+      console.error("Error parsing timestamp:", timestamp, error);
+      return null;
+    }
   };
 
   const filterDataByTimeRange = () => {
-    let filteredData = bloodSugarData;
-
-    if (timeRange === "1d") {
-      // Hardcode the "current date" to match the sample data
-      const currentDate = "2024-01-03 21:00:00";
-      const startOfDay = parseTimestamp(currentDate.split(" ")[0] + " 00:00:00"); // Start of the day
-      const endOfDay = parseTimestamp(currentDate.split(" ")[0] + " 23:59:59"); // End of the day
-
-      console.log("Start of Day:", startOfDay); // Debugging: Log start of day
-      console.log("End of Day:", endOfDay); // Debugging: Log end of day
-
-      filteredData = bloodSugarData.filter(reading => {
-        const readingDate = parseTimestamp(reading.timestamp);
-        console.log("Reading Date:", readingDate); // Debugging: Log parsed timestamp
-        return readingDate >= startOfDay && readingDate <= endOfDay;
-      });
-    } else if (timeRange === "1w") {
-      // Hardcode the "current date" to match the sample data
-      const currentDate = "2024-01-03 21:00:00";
-      const startOfWeek = new Date(parseTimestamp(currentDate).getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
-      const endOfWeek = parseTimestamp(currentDate.split(" ")[0] + " 23:59:59"); // End of the current day
-
-      console.log("Start of Week:", new Date(startOfWeek)); // Debugging: Log start of week
-      console.log("End of Week:", endOfWeek); // Debugging: Log end of week
-
-      filteredData = bloodSugarData.filter(reading => {
-        const readingDate = parseTimestamp(reading.timestamp);
-        console.log("Reading Date:", readingDate); // Debugging: Log parsed timestamp
-        return readingDate >= startOfWeek && readingDate <= endOfWeek;
-      });
-    } else if (timeRange === "1m") {
-      // Hardcode the "current date" to match the sample data
-      const currentDate = "2024-01-03 21:00:00";
-      const startOfMonth = new Date(parseTimestamp(currentDate).getTime() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
-      const endOfMonth = parseTimestamp(currentDate.split(" ")[0] + " 23:59:59"); // End of the current day
-
-      console.log("Start of Month:", new Date(startOfMonth)); // Debugging: Log start of month
-      console.log("End of Month:", endOfMonth); // Debugging: Log end of month
-
-      filteredData = bloodSugarData.filter(reading => {
-        const readingDate = parseTimestamp(reading.timestamp);
-        console.log("Reading Date:", readingDate); // Debugging: Log parsed timestamp
-        return readingDate >= startOfMonth && readingDate <= endOfMonth;
-      });
+    if (timeRange === "all") {
+      setFilteredData(bloodSugarData);
+      return;
     }
+    
+    let mostRecentDate = null;
+    
+    const validDates = bloodSugarData
+      .map(reading => parseTimestamp(reading.timestamp))
+      .filter(date => date !== null);
+    
+    if (validDates.length === 0) {
+      console.error("No valid dates found in dataset");
+      setFilteredData([]); 
+      return;
+    }
+    
+    mostRecentDate = new Date(Math.max(...validDates.map(date => date.getTime())));
+    
+    console.log("Most recent date in data:", mostRecentDate);
+    
+    let startDate;
+    const endDate = new Date(mostRecentDate);
+    
+    if (timeRange === "1d") {
+      startDate = new Date(mostRecentDate);
+      startDate.setDate(startDate.getDate() - 1);
+    } else if (timeRange === "1w") {
+      startDate = new Date(mostRecentDate);
+      startDate.setDate(startDate.getDate() - 7);
+    } else if (timeRange === "1m") {
+      startDate = new Date(mostRecentDate);
+      startDate.setDate(startDate.getDate() - 30);
+    }
+    
+    console.log(`Filter range: ${startDate.toISOString()} to ${endDate.toISOString()}`);
+    
+    const filtered = bloodSugarData.filter(reading => {
+      const readingDate = parseTimestamp(reading.timestamp);
+      if (!readingDate) return false; 
+      
+      return readingDate >= startDate && readingDate <= endDate;
+    });
+    
 
-    console.log("Filtered Data:", filteredData); // Debugging: Log filtered data
-    setFilteredData(filteredData);
+    filtered.sort((a, b) => {
+      const dateA = parseTimestamp(a.timestamp);
+      const dateB = parseTimestamp(b.timestamp);
+      if (!dateA || !dateB) return 0;
+      return dateA - dateB;
+    });
+    
+    console.log(`Filtered from ${bloodSugarData.length} to ${filtered.length} readings`);
+    setFilteredData(filtered);
   };
 
   const analyzeData = async () => {
@@ -174,10 +217,15 @@ function GraphPage() {
 
     const ctx = chartRef.current.getContext('2d');
     
+    const formattedLabels = filteredData.map(row => {
+      const date = parseTimestamp(row.timestamp);
+      return date ? date.toLocaleString() : row.timestamp;
+    });
+    
     chartInstance.current = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: filteredData.map(row => row.timestamp),
+        labels: formattedLabels,
         datasets: [{
           label: 'Blood Sugar Level (mg/dL)',
           data: filteredData.map(row => row.blood_sugar_level),
@@ -220,17 +268,50 @@ function GraphPage() {
     navigate("/journal");
   };
 
-const handleFormSubmitSuccess = () => {
-  fetchBloodSugarData();
-};
+  const handleFormSubmitSuccess = () => {
+    fetchBloodSugarData();
+  };
 
-const handleSaveToJournal = () => {
-  const journalEntries = JSON.parse(localStorage.getItem('journalEntries')) || [];
-  journalEntries.push(analysisResult);
-  localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
-  alert('Analysis result saved to journal!');
-};
+  const handleSaveToJournal = () => {
+    const journalEntries = JSON.parse(localStorage.getItem('journalEntries')) || [];
+    journalEntries.push(analysisResult);
+    localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
+    alert('Analysis result saved to journal!');
+  };
 
+  const handleDeleteReading = async (reading) => {
+    if (!window.confirm('Are you sure you want to delete this blood sugar reading?')) {
+      return;
+    }
+    
+    try {
+      const userId = JSON.parse(localStorage.getItem('user')).id;
+      const port = localStorage.getItem('backendPort') || 5000;
+      
+      const response = await fetch(`http://localhost:${port}/api/blood-sugar-data`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          timestamp: reading.timestamp,
+          bloodSugarLevel: reading.blood_sugar_level
+        }),
+      });
+      
+      if (response.ok) {
+        fetchBloodSugarData();
+      } else {
+        const errorData = await response.json();
+        console.error('Error deleting reading:', errorData);
+        alert(`Error deleting reading: ${errorData.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error deleting reading:', error);
+      alert('Failed to delete reading. Please try again.');
+    }
+  };
 
   return (
     <div className="container">
@@ -295,6 +376,7 @@ const handleSaveToJournal = () => {
           <tr>
             <th>Time</th>
             <th>Blood Sugar Level (mg/dL)</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -302,6 +384,15 @@ const handleSaveToJournal = () => {
             <tr key={index}>
               <td>{reading.timestamp}</td>
               <td>{reading.blood_sugar_level}</td>
+              <td>
+                <button 
+                  className="delete-button" 
+                  onClick={() => handleDeleteReading(reading)}
+                  title="Delete reading"
+                >
+                  ×
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>

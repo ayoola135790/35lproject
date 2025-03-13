@@ -167,3 +167,27 @@ Please provide:
     res.status(500).send('Failed to analyze blood sugar data');
   }
 };
+
+exports.deleteBloodSugarData = async (req, res) => {
+  try {
+    const { userId, timestamp, bloodSugarLevel } = req.body;
+    
+    if (!userId || !timestamp) {
+      return res.status(400).json({ error: 'User ID and timestamp are required' });
+    }
+    
+    const result = await bloodSugarFunctions.deleteBloodSugarReading(userId, timestamp, bloodSugarLevel);
+    
+    if (result.success) {
+      res.status(200).json({ 
+        success: true, 
+        message: 'Blood sugar reading deleted successfully'
+      });
+    } else {
+      throw new Error(result.error);
+    }
+  } catch (error) {
+    console.error('Error deleting blood sugar data:', error);
+    res.status(500).json({ error: 'Failed to delete blood sugar data' });
+  }
+};
