@@ -51,7 +51,7 @@ h1 {
 
 .analyze-button {
   padding: 10px 20px;
-  background-color: #3498db;
+  background-color: #4CAF50;
   color: white;
   border: none;
   border-radius: 5px;
@@ -60,7 +60,7 @@ h1 {
 }
 
 .analyze-button:hover {
-  background-color: #2980b9;
+  background-color: #45a049;
 }
 
 .analyze-button:disabled {
@@ -101,4 +101,23 @@ h1 {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
+}
+
+.button-group button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.button-group button:hover {
+  background-color: #45a049;
+}
+
+.button-group button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
 }

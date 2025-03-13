@@ -127,91 +127,62 @@ const userFunctions = {
   },
 
   async findUserByIdentifier(identifier) {
-    return new Promise((resolve, reject) => {
-      try {
-        let field = 'username';
-        if (identifier.includes('@')) {
-          field = 'email';
-        } else if (/^\+?\d{10,15}$/.test(identifier)) {
-          field = 'phone';
-        }
-        
-        const query = `SELECT * FROM users WHERE ${field} = ?`;
-        
-        db.get(query, [identifier], (err, user) => {
-          if (err) {
-            console.error('Error finding user:', err.message);
-            resolve({ success: false, error: err.message });
-            return;
-          }
-          
-          if (!user) {
-            resolve({ success: false, error: 'User not found' });
-            return;
-          }
-          
-          const { password_hash, ...userWithoutPassword } = user;
-          resolve({ success: true, user: userWithoutPassword });
-        });
-      } catch (error) {
-        console.error('Error finding user:', error);
-        resolve({ success: false, error: error.message });
+    try {
+      let field = 'username';
+      if (identifier.includes('@')) {
+        field = 'email';
+      } else if (/^\+?\d{10,15}$/.test(identifier)) {
+        field = 'phone';
       }
-    });
+      
+      const query = `SELECT * FROM users WHERE ${field} = ?`;
+      const getUser = db.prepare(query);
+      const user = getUser.get(identifier);
+      
+      if (!user) {
+        return { success: false, error: 'User not found' };
+      }
+      
+      const { password_hash, ...userWithoutPassword } = user;
+      return { success: true, user: userWithoutPassword };
+    } catch (error) {
+      console.error('Error finding user:', error);
+      return { success: false, error: error.message };
+    }
   },
 
   async updateUserPassword(identifier, newPassword) {
-    return new Promise((resolve, reject) => {
-      try {
-        let field = 'username';
-        if (identifier.includes('@')) {
-          field = 'email';
-        } else if (/^\+?\d{10,15}$/.test(identifier)) {
-          field = 'phone';
-        }
-        
-        // First check if the user exists
-        const userQuery = `SELECT id FROM users WHERE ${field} = ?`;
-        
-        db.get(userQuery, [identifier], async (err, user) => {
-          if (err) {
-            console.error('Error finding user:', err.message);
-            resolve({ success: false, error: err.message });
-            return;
-          }
-          
-          if (!user) {
-            resolve({ success: false, error: 'User not found' });
-            return;
-          }
-          
-          try {
-            const passwordHash = await hashPassword(newPassword);
-            
-            const updatePassword = `
-              UPDATE users 
-              SET password_hash = ? 
-              WHERE ${field} = ?
-            `;
-            
-            db.run(updatePassword, [passwordHash, identifier], (err) => {
-              if (err) {
-                console.error('Error updating password:', err.message);
-                resolve({ success: false, error: err.message });
-              } else {
-                resolve({ success: true });
-              }
-            });
-          } catch (hashError) {
-            console.error('Error hashing new password:', hashError);
-            resolve({ success: false, error: hashError.message });
-          }
-        });
-      } catch (error) {
-        console.error('Error updating password:', error);
-        resolve({ success: false, error: error.message });
+    try {
+      let field = 'username';
+      if (identifier.includes('@')) {
+        field = 'email';
+      } else if (/^\+?\d{10,15}$/.test(identifier)) {
+        field = 'phone';
       }
-    });
+      
+      const userQuery = `SELECT id FROM users WHERE ${field} = ?`;
+      const getUser = db.prepare(userQuery);
+      const user = getUser.get(identifier);
+      
+      if (!user) {
+        return { success: false, error: 'User not found' };
+      }
+      
+      const passwordHash = await hashPassword(newPassword);
+      
+      const updatePassword = db.prepare(`
+        UPDATE users 
+        SET password_hash = ? 
+        WHERE ${field} = ?
+      `);
+      
+      updatePassword.run(passwordHash, identifier);
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating password:', error);
+      return { success: false, error: error.message };
+    }
   }
 };
 
