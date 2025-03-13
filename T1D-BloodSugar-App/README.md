@@ -1,9 +1,9 @@
-# [Insert App Name]
+# GlucoLog
 
 This is the GitHub repository for **[Insert App Name]**, created for **CS35L** by team members **Saanvi Nandanwar, Tiffany Orian, Constine, David, Ayoola, Emanuel**.
 
 ## About the Project  
-**[Insert App Name]** is a web application designed to help individuals with **Type 1 Diabetes** track their blood sugar levels over time. The app integrates **Sugarmate** to collect blood sugar data and presents it in an interactive, user-friendly dashboard. Users can manually input their data into **ChatGPT** to gain insights and recommendations for managing their blood sugar levels.  
+**GlucoLog** is a web application designed to help individuals with **Type 1 Diabetes** track their blood sugar levels over time. The app integrates **Sugarmate** to collect blood sugar data and presents it in an interactive, user-friendly dashboard. Users can manually input their data into **ChatGPT** to gain insights and recommendations for managing their blood sugar levels.  
 
 ### Key Features  
 - **Blood Sugar Tracking:** Users can log and visualize their blood sugar levels through dynamic charts.  
