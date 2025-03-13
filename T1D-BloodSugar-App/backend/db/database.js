@@ -243,6 +243,28 @@ const bloodSugarFunctions = {
         }
       });
     });
+  },
+
+  async deleteBloodSugarReading(userId, timestamp, bloodSugarLevel) {
+    return new Promise((resolve, reject) => {
+      const deleteReading = `
+        DELETE FROM blood_sugar_data
+        WHERE user_id = ? AND timestamp = ? AND blood_sugar_level = ?
+      `;
+      
+      db.run(deleteReading, [userId, timestamp, bloodSugarLevel], function(err) {
+        if (err) {
+          console.error('Error deleting blood sugar reading:', err.message);
+          resolve({ success: false, error: err.message });
+        } else {
+          if (this.changes === 0) {
+            resolve({ success: false, error: 'No matching reading found' });
+          } else {
+            resolve({ success: true, changes: this.changes });
+          }
+        }
+      });
+    });
   }
 };
 

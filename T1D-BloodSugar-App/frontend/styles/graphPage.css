@@ -30,6 +30,7 @@ h1 {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #ddd;
+  vertical-align: middle;
 }
 
 .readings-table th {
@@ -120,4 +121,23 @@ h1 {
 .button-group button:disabled {
   background-color: #95a5a6;
   cursor: not-allowed;
+}
+
+.delete-button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.delete-button:hover {
+  background-color: #c0392b;
 }
