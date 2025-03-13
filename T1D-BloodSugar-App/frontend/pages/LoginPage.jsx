@@ -73,12 +73,12 @@ const LoginPage = () => {
             <circle cx="45" cy="35" r="3" fill="#ffffff"/>
             <circle cx="55" cy="35" r="3" fill="#ffffff"/>
             <circle cx="50" cy="40" r="3" fill="#ffffff"/>
-            <line x1="50" y1="30" x2="45" y2="35" stroke="#ffffff" stroke-width="2"/>
-            <line x1="50" y1="30" x2="55" y2="35" stroke="#ffffff" stroke-width="2"/>
-            <line x1="45" y1="35" x2="50" y2="40" stroke="#ffffff" stroke-width="2"/>
-            <line x1="55" y1="35" x2="50" y2="40" stroke="#ffffff" stroke-width="2"/>
+            <line x1="50" y1="30" x2="45" y2="35" stroke="#ffffff" strokeWidth="2"/>
+            <line x1="50" y1="30" x2="55" y2="35" stroke="#ffffff" strokeWidth="2"/>
+            <line x1="45" y1="35" x2="50" y2="40" stroke="#ffffff" strokeWidth="2"/>
+            <line x1="55" y1="35" x2="50" y2="40" stroke="#ffffff" strokeWidth="2"/>
           </svg>
-          <h1> <a href="/"> GlucoLog</a> </h1>
+          <h1> <a href="/" style={{ textDecoration: 'none', color: 'inherit' }}> GlucoLog</a> </h1>
         </div>
         <h2>Login</h2>
         {error && <p className="error-message">{error}</p>}
@@ -105,7 +105,7 @@ const LoginPage = () => {
             <span className="clickable-text" onClick={handleForgotPassword}>Forgot password?</span>
           </p>
           <p className="signup-link">
-            Don't have an account? <a href="/signup">Sign Up</a>
+            Don't have an account? <a href="/signup" style={{ fontWeight: 'bold' }}>Sign Up</a>
           </p>
         </div>
       </div>

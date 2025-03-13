@@ -3,8 +3,10 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #e0f7fa; /* same blue background as login and signup pages */
-  font-family: Arial, sans-serif; /* same font as login and signup pages */
+  background: linear-gradient(135deg, #f0f8ff, #e0f7fa); /* gradient background */
+  font-family: Arial, sans-serif;
+  position: relative;
+  overflow: hidden;
 }
 
 .welcome-container {
@@ -13,7 +15,8 @@
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
-  width: 300px;
+  width: 400px;
+  z-index: 1;
 }
 
 .branding {
@@ -28,36 +31,160 @@
 }
 
 .welcome-container h1 {
-  font-size: 1.5rem;
+  font-size: 2rem;
   color: #4CAF50;
+  margin-bottom: 1rem;
 }
 
 .welcome-container h2 {
+  font-size: 1.5rem;
+  color: #2c3e50;
   margin-bottom: 1rem;
-  color: #009942;
 }
 
 .welcome-container p {
   font-size: 1rem;
-  color: #555;
-  margin-bottom: 1rem;
+  color: #2c3e50;
+  margin-bottom: 2rem;
 }
 
 .button-group {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
 }
 
-.button-group button {
-  padding: 0.5rem;
+.welcome-button {
+  padding: 0.5rem 1rem;
   background-color: #4CAF50;
   color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  width: 48%;
+  font-size: 1rem;
+  margin: 0; /* remove margin to eliminate space between buttons */
 }
 
-.button-group button:hover {
+.welcome-button:hover {
   background-color: #45a049;
+}
+
+.background-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(76, 175, 80, 0.2);
+}
+
+.circle1 {
+  width: 200px;
+  height: 200px;
+  top: -50px;
+  left: -50px;
+}
+
+.circle2 {
+  width: 300px;
+  height: 300px;
+  bottom: -100px;
+  right: -100px;
+}
+
+.circle3 {
+  width: 150px;
+  height: 150px;
+  bottom: 50px;
+  left: 50px;
+}
+
+.circle4 {
+  width: 100px;
+  height: 100px;
+  top: 100px;
+  right: 50px;
+}
+
+.circle5 {
+  width: 250px;
+  height: 250px;
+  bottom: 150px;
+  left: 150px;
+}
+
+.circle6 {
+  width: 200px;
+  height: 200px;
+  top: 200px;
+  left: 200px;
+}
+
+.circle7 {
+  width: 150px;
+  height: 150px;
+  top: 50px;
+  right: 150px;
+}
+
+.circle8 {
+  width: 180px;
+  height: 180px;
+  top: 150px;
+  left: 100px;
+}
+
+.circle9 {
+  width: 220px;
+  height: 220px;
+  bottom: 200px;
+  right: 200px;
+}
+
+.circle10 {
+  width: 130px;
+  height: 130px;
+  top: 250px;
+  left: 250px;
+}
+
+.circle11 {
+  width: 170px;
+  height: 170px;
+  bottom: 250px;
+  right: 50px;
+}
+
+.circle12 {
+  width: 140px;
+  height: 140px;
+  top: 300px;
+  left: 300px;
+}
+
+.circle13 {
+  width: 160px;
+  height: 160px;
+  bottom: 300px;
+  right: 100px;
+}
+
+.circle14 {
+  width: 190px;
+  height: 190px;
+  top: 350px;
+  left: 350px;
+}
+
+.circle15 {
+  width: 210px;
+  height: 210px;
+  bottom: 350px;
+  right: 150px;
 }

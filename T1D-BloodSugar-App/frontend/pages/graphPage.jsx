@@ -217,6 +217,14 @@ function GraphPage() {
     navigate("/journal");
   };
 
+  //add a function to save the analysis result to the journal
+  const handleSaveToJournal = () => {
+    const journalEntries = JSON.parse(localStorage.getItem('journalEntries')) || [];
+    journalEntries.push(analysisResult);
+    localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
+    alert('Analysis result saved to journal!');
+  };
+
   return (
     <div className="container">
       <h1>Blood Sugar Analysis</h1>
@@ -291,7 +299,13 @@ function GraphPage() {
       <div className="analysis-result">
         {analysisResult}
       </div>
+      <button 
+        className="analyze-button" 
+        onClick={handleSaveToJournal}>
+        Save to Journal
+      </button>
     </div>
+    
   );
 }
 
