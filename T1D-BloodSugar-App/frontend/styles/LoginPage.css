@@ -75,3 +75,33 @@
     text-decoration: underline;
 }
 
+.forgot-password {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.forgot-password .clickable-text {
+    color: #4CAF50;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.forgot-password .clickable-text:hover {
+    color: #388E3C;
+}
+
+.signup-link {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.signup-link a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.signup-link a:hover {
+    color: #388E3C;
+    text-decoration: underline;
+}
