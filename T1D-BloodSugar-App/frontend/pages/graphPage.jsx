@@ -31,6 +31,20 @@ function GraphPage() {
 
   const fetchBloodSugarData = async () => {
     try {
+      const savedPort = localStorage.getItem('backendPort');
+      if (savedPort) {
+        try {
+          const response = await fetch(`http://localhost:${savedPort}/api/blood-sugar-data`);
+          if (response.ok) {
+            const data = await response.json();
+            setBloodSugarData(data);
+            return;
+          }
+        } catch (err) {
+          console.log(`Saved port ${savedPort} not responding, trying others...`);
+        }
+      }
+      
       const possiblePorts = [5000, 5001, 5002];
       let data = null;
       
@@ -41,6 +55,7 @@ function GraphPage() {
           if (response.ok) {
             data = await response.json();
             window.backendPort = port;
+            localStorage.setItem('backendPort', port);
             console.log(`Successfully connected to backend on port ${port}`);
             break;
           }

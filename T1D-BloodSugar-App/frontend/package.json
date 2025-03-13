@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "better-sqlite3": "^11.8.1",
     "chart.js": "^4.4.8",
     "papaparse": "^5.5.2",
     "react": "^19.0.0",

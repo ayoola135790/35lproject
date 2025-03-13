@@ -7,17 +7,73 @@ const SignupPage = () => {
   const [identifier, setIdentifier] = useState(""); // can be email, phone, or username
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault(); // prevents page refresh
+    setError("");
+    
     if (password !== confirmPassword) {
-      alert("passwords do not match!");
+      setError("Passwords do not match!");
       return;
     }
-    console.log("signing up with:", name, identifier, password);
-    // todo: send signup data to backend
-    navigate("/graphPage"); // Navigate to the graph page after signup
+    
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const possiblePorts = [5000, 5001, 5002];
+      let response = null;
+      let data = null;
+      
+      for (const port of possiblePorts) {
+        try {
+          console.log(`Trying to connect to auth endpoint on port ${port}...`);
+          response = await fetch(`http://localhost:${port}/auth/signup`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              name, 
+              identifier, 
+              password,
+              confirmPassword 
+            }),
+          });
+          
+          data = await response.json();
+          window.backendPort = port;
+          localStorage.setItem('backendPort', port);
+          console.log(`Successfully connected to auth endpoint on port ${port}`);
+          break;
+        } catch (err) {
+          console.log(`Port ${port} not responding, trying next...`);
+        }
+      }
+      
+      if (data) {
+        if (data.success) {
+          alert("Account created successfully! Please log in.");
+          navigate("/login");
+        } else {
+          setError(data.error || 'Registration failed');
+        }
+      } else {
+        throw new Error('Could not connect to backend on any port');
+      }
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError('Connection error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,36 +97,39 @@ const SignupPage = () => {
         <p className="note">
           This app is tied to DEXCOM. Please keep your sign-in information consistent so that we can log in to that account and analyze your blood sugar data.
         </p>
+        {error && <p className="error-message">{error}</p>}
         <form onSubmit={handleSubmit}>
           <input
             type="text"
-            placeholder="name"
+            placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
           <input
             type="text"
-            placeholder="email, phone, or username"
+            placeholder="Email, Phone, or Username"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
             required
           />
           <input
             type="password"
-            placeholder="password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
           <input
             type="password"
-            placeholder="confirm password"
+            placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
-          <button type="submit">sign up</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Creating Account..." : "Sign Up"}
+          </button>
         </form>
         {/* login link */}
         <p className="login-link">
