@@ -7,6 +7,7 @@ const SignupPage = () => {
   const [identifier, setIdentifier] = useState(""); // can be email, phone, or username
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [securityAnswer, setSecurityAnswer] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -44,17 +45,21 @@ const SignupPage = () => {
               name, 
               identifier, 
               password,
-              confirmPassword 
+              securityAnswer
             }),
           });
           
+          if (!response.ok) {
+            throw new Error(`Server responded with status ${response.status}`);
+          }
+
           data = await response.json();
           window.backendPort = port;
           localStorage.setItem('backendPort', port);
           console.log(`Successfully connected to auth endpoint on port ${port}`);
           break;
         } catch (err) {
-          console.log(`Port ${port} not responding, trying next...`);
+          console.log(`Port ${port} not responding or error occurred: ${err.message}`);
         }
       }
       
@@ -70,7 +75,7 @@ const SignupPage = () => {
       }
     } catch (err) {
       console.error('Signup error:', err);
-      setError('Connection error. Please try again.');
+      setError(`Connection error: ${err.message}. Please try again.`);
     } finally {
       setLoading(false);
     }
@@ -125,6 +130,13 @@ const SignupPage = () => {
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+          <input
+            type="text"
+            placeholder="Where did you grow up in your childhood?"
+            value={securityAnswer}
+            onChange={(e) => setSecurityAnswer(e.target.value)}
             required
           />
           <button type="submit" disabled={loading}>
