@@ -47,149 +47,171 @@ async function hashPassword(password) {
 
 const userFunctions = {
   async createUser(userData) {
-    const { name, password, email, username, phone } = userData;
-    
-    try {
-      const passwordHash = await hashPassword(password);
+    return new Promise((resolve, reject) => {
+      const { name, password, email, username, phone } = userData;
       
-      const insertUser = `
-        INSERT INTO users (name, email, username, phone, password_hash)
-        VALUES (?, ?, ?, ?, ?)
-      `;
-      
-      const params = [ 
-        name, 
-        email || null,
-        username || null,
-        phone || null,
-        passwordHash
-      ];
-      
-      db.run(insertUser, params, function(err) {
-        if (err) {
-          console.error('Error creating user:', err.message);
-          return { success: false, error: err.message };
-        } else {
-          return { success: true, id: this.lastID };
-        }
-      });
-    } catch (error) {
-      console.error('Error creating user:', error);
-      return { success: false, error: error.message };
-    }
+      try {
+        hashPassword(password).then(passwordHash => {
+          const insertUser = `
+            INSERT INTO users (name, email, username, phone, password_hash)
+            VALUES (?, ?, ?, ?, ?)
+          `;
+          
+          const params = [ 
+            name, 
+            email || null,
+            username || null,
+            phone || null,
+            passwordHash
+          ];
+          
+          db.run(insertUser, params, function(err) {
+            if (err) {
+              console.error('Error creating user:', err.message);
+              resolve({ success: false, error: err.message });
+            } else {
+              resolve({ success: true, id: this.lastID });
+            }
+          });
+        }).catch(err => {
+          console.error('Error hashing password:', err);
+          resolve({ success: false, error: err.message });
+        });
+      } catch (error) {
+        console.error('Error creating user:', error);
+        resolve({ success: false, error: error.message });
+      }
+    });
   },
   
   async verifyUser(identifier, password) {
-    try {
-      let field = 'username'; 
-      if (identifier.includes('@')) {
-        field = 'email';
-      } else if (/^\+?\d{10,15}$/.test(identifier)) {
-        field = 'phone';
+    return new Promise((resolve, reject) => {
+      try {
+        let field = 'username'; 
+        if (identifier.includes('@')) {
+          field = 'email';
+        } else if (/^\+?\d{10,15}$/.test(identifier)) {
+          field = 'phone';
+        }
+        
+        const query = `SELECT * FROM users WHERE ${field} = ?`;
+        console.log('Executing query:', query, 'with value:', identifier);
+        
+        db.get(query, [identifier], async (err, user) => {
+          if (err) {
+            console.error('Error verifying user:', err.message);
+            resolve({ success: false, error: err.message });
+            return;
+          }
+          
+          if (!user) {
+            console.log('User not found with identifier:', identifier);
+            resolve({ success: false, error: 'User not found' });
+            return;
+          }
+          
+          const passwordMatch = await bcrypt.compare(password, user.password_hash);
+          
+          if (passwordMatch) {
+            const { password_hash, ...userWithoutPassword } = user;
+            resolve({ success: true, user: userWithoutPassword });
+          } else {
+            resolve({ success: false, error: 'Invalid password' });
+          }
+        });
+      } catch (error) {
+        console.error('Error verifying user:', error);
+        resolve({ success: false, error: error.message });
       }
-      
-      const query = `SELECT * FROM users WHERE ${field} = ?`;
-      console.log('Executing query:', query, 'with value:', identifier);
-      
-      db.get(query, [identifier], async (err, user) => {
-        if (err) {
-          console.error('Error verifying user:', err.message);
-          return { success: false, error: err.message };
-        }
-        
-        if (!user) {
-          console.log('User not found with identifier:', identifier);
-          return { success: false, error: 'User not found' };
-        }
-        
-        const passwordMatch = await bcrypt.compare(password, user.password_hash);
-        
-        if (passwordMatch) {
-          const { password_hash, ...userWithoutPassword } = user;
-          return { success: true, user: userWithoutPassword };
-        } else {
-          return { success: false, error: 'Invalid password' };
-        }
-      });
-    } catch (error) {
-      console.error('Error verifying user:', error);
-      return { success: false, error: error.message };
-    }
+    });
   },
 
   async findUserByIdentifier(identifier) {
-    try {
-      let field = 'username';
-      if (identifier.includes('@')) {
-        field = 'email';
-      } else if (/^\+?\d{10,15}$/.test(identifier)) {
-        field = 'phone';
+    return new Promise((resolve, reject) => {
+      try {
+        let field = 'username';
+        if (identifier.includes('@')) {
+          field = 'email';
+        } else if (/^\+?\d{10,15}$/.test(identifier)) {
+          field = 'phone';
+        }
+        
+        const query = `SELECT * FROM users WHERE ${field} = ?`;
+        
+        db.get(query, [identifier], (err, user) => {
+          if (err) {
+            console.error('Error finding user:', err.message);
+            resolve({ success: false, error: err.message });
+            return;
+          }
+          
+          if (!user) {
+            resolve({ success: false, error: 'User not found' });
+            return;
+          }
+          
+          const { password_hash, ...userWithoutPassword } = user;
+          resolve({ success: true, user: userWithoutPassword });
+        });
+      } catch (error) {
+        console.error('Error finding user:', error);
+        resolve({ success: false, error: error.message });
       }
-      
-      const query = `SELECT * FROM users WHERE ${field} = ?`;
-      
-      db.get(query, [identifier], (err, user) => {
-        if (err) {
-          console.error('Error finding user:', err.message);
-          return { success: false, error: err.message };
-        }
-        
-        if (!user) {
-          return { success: false, error: 'User not found' };
-        }
-        
-        const { password_hash, ...userWithoutPassword } = user;
-        return { success: true, user: userWithoutPassword };
-      });
-    } catch (error) {
-      console.error('Error finding user:', error);
-      return { success: false, error: error.message };
-    }
+    });
   },
 
   async updateUserPassword(identifier, newPassword) {
-    try {
-      let field = 'username';
-      if (identifier.includes('@')) {
-        field = 'email';
-      } else if (/^\+?\d{10,15}$/.test(identifier)) {
-        field = 'phone';
-      }
-      
-      // First check if the user exists
-      const userQuery = `SELECT id FROM users WHERE ${field} = ?`;
-      
-      db.get(userQuery, [identifier], async (err, user) => {
-        if (err) {
-          console.error('Error finding user:', err.message);
-          return { success: false, error: err.message };
+    return new Promise((resolve, reject) => {
+      try {
+        let field = 'username';
+        if (identifier.includes('@')) {
+          field = 'email';
+        } else if (/^\+?\d{10,15}$/.test(identifier)) {
+          field = 'phone';
         }
         
-        if (!user) {
-          return { success: false, error: 'User not found' };
-        }
+        // First check if the user exists
+        const userQuery = `SELECT id FROM users WHERE ${field} = ?`;
         
-        const passwordHash = await hashPassword(newPassword);
-        
-        const updatePassword = `
-          UPDATE users 
-          SET password_hash = ? 
-          WHERE ${field} = ?
-        `;
-        
-        db.run(updatePassword, [passwordHash, identifier], (err) => {
+        db.get(userQuery, [identifier], async (err, user) => {
           if (err) {
-            console.error('Error updating password:', err.message);
-            return { success: false, error: err.message };
-          } else {
-            return { success: true };
+            console.error('Error finding user:', err.message);
+            resolve({ success: false, error: err.message });
+            return;
+          }
+          
+          if (!user) {
+            resolve({ success: false, error: 'User not found' });
+            return;
+          }
+          
+          try {
+            const passwordHash = await hashPassword(newPassword);
+            
+            const updatePassword = `
+              UPDATE users 
+              SET password_hash = ? 
+              WHERE ${field} = ?
+            `;
+            
+            db.run(updatePassword, [passwordHash, identifier], (err) => {
+              if (err) {
+                console.error('Error updating password:', err.message);
+                resolve({ success: false, error: err.message });
+              } else {
+                resolve({ success: true });
+              }
+            });
+          } catch (hashError) {
+            console.error('Error hashing new password:', hashError);
+            resolve({ success: false, error: hashError.message });
           }
         });
-      });
-    } catch (error) {
-      console.error('Error updating password:', error);
-      return { success: false, error: error.message };
-    }
+      } catch (error) {
+        console.error('Error updating password:', error);
+        resolve({ success: false, error: error.message });
+      }
+    });
   }
 };
 
