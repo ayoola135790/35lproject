@@ -55,7 +55,6 @@ const parseCSV = (csvText) => {
 
 // Get blood sugar data
 exports.getBloodSugarData = async (req, res) => {
-  //console.log('Fetching blood sugar data...');
   try {
     const csvPath = path.join(__dirname, '../data/blood_sugar_data.csv');
     console.log('Looking for CSV file at:', csvPath);
@@ -79,8 +78,8 @@ exports.getBloodSugarData = async (req, res) => {
 
 // Analyze blood sugar data by calling OpenAI api
 exports.analyzeBloodSugar = async (req, res) => {
-  //console.log('Received analysis request with body:', req.body);
   try {
+    console.log('Received analysis request with body:', req.body);
     const data = req.body.data || sampleBloodSugarData;
     console.log(`Analyzing ${data.length} blood sugar readings`);
     
