@@ -72,6 +72,7 @@ h1 {
   text-align: center;
   margin: 20px 0;
 }
+
 .time-range-selector {
   margin-bottom: 20px;
 }
@@ -94,4 +95,10 @@ h1 {
 
 .time-range-button:hover {
   background-color: #ddd;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }

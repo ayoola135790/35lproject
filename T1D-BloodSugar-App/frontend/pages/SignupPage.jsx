@@ -4,20 +4,20 @@ import "../styles/SignupPage.css";
 
 const SignupPage = () => {
   const [name, setName] = useState("");
-  const [identifier, setIdentifier] = useState(""); // Can be email, phone, or username
+  const [identifier, setIdentifier] = useState(""); // can be email, phone, or username
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
-    e.preventDefault(); // Prevents page refresh
+    e.preventDefault(); // prevents page refresh
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      alert("passwords do not match!");
       return;
     }
-    console.log("Signing up with:", name, identifier, password);
-    // TODO: Send signup data to backend
-    navigate("/login");
+    console.log("signing up with:", name, identifier, password);
+    // todo: send signup data to backend
+    navigate("/graphPage"); // Navigate to the graph page after signup
   };
 
   return (
@@ -39,40 +39,40 @@ const SignupPage = () => {
         </div>
         <h2>Sign Up</h2>
         <p className="note">
-          This app is tied to Sugarmate. Please keep your sign-in information consistent so that we can log in to that account and analyze your blood sugar data.
+          This app is tied to DEXCOM. Please keep your sign-in information consistent so that we can log in to that account and analyze your blood sugar data.
         </p>
         <form onSubmit={handleSubmit}>
           <input
             type="text"
-            placeholder="Name"
+            placeholder="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
           <input
             type="text"
-            placeholder="Email, Phone, or Username"
+            placeholder="email, phone, or username"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
             required
           />
           <input
             type="password"
-            placeholder="Password"
+            placeholder="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
           <input
             type="password"
-            placeholder="Confirm Password"
+            placeholder="confirm password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
-          <button type="submit">Sign Up</button>
+          <button type="submit">sign up</button>
         </form>
-        {/* Login Link */}
+        {/* login link */}
         <p className="login-link">
           Already have an account? <a href="/login">Login</a>
         </p>

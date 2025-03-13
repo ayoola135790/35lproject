@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "../styles/graphPage.css";
 
 function GraphPage() {
@@ -10,6 +11,7 @@ function GraphPage() {
   const [timeRange, setTimeRange] = useState("all"); // "all", "1d", "1w", or "1m"
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
     fetchBloodSugarData();
@@ -196,16 +198,28 @@ function GraphPage() {
     });
   };
 
+  const handleNavigateToJournal = () => {
+    navigate("/journal");
+  };
+
   return (
     <div className="container">
       <h1>Blood Sugar Analysis</h1>
-      <button 
-        className="analyze-button" 
-        onClick={analyzeData}
-        disabled={isLoading}
-      >
-        Analyze Blood Sugar Data
-      </button>
+      <div className="button-group">
+        <button 
+          className="analyze-button" 
+          onClick={analyzeData}
+          disabled={isLoading}
+        >
+          Analyze Blood Sugar Data
+        </button>
+        <button 
+          className="analyze-button" 
+          onClick={handleNavigateToJournal}
+        >
+          Go to Journal
+        </button>
+      </div>
       
       {isLoading && <div className="loading">Analyzing data...</div>}
       
