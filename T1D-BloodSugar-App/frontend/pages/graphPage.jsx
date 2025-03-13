@@ -220,9 +220,17 @@ function GraphPage() {
     navigate("/journal");
   };
 
-  const handleFormSubmitSuccess = () => {
-    fetchBloodSugarData();
-  };
+const handleFormSubmitSuccess = () => {
+  fetchBloodSugarData();
+};
+
+const handleSaveToJournal = () => {
+  const journalEntries = JSON.parse(localStorage.getItem('journalEntries')) || [];
+  journalEntries.push(analysisResult);
+  localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
+  alert('Analysis result saved to journal!');
+};
+
 
   return (
     <div className="container">
@@ -303,7 +311,13 @@ function GraphPage() {
       <div className="analysis-result">
         {analysisResult}
       </div>
+      <button 
+        className="analyze-button" 
+        onClick={handleSaveToJournal}>
+        Save to Journal
+      </button>
     </div>
+    
   );
 }
 

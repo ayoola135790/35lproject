@@ -53,7 +53,9 @@ const parseCSV = (csvText) => {
   });
 };
 
+
 exports.getUserBloodSugarData = async (req, res) => {
+
   try {
     const userId = req.params.userId;
     
@@ -130,6 +132,7 @@ exports.addBloodSugarData = async (req, res) => {
 
 exports.analyzeBloodSugar = async (req, res) => {
   try {
+    console.log('Received analysis request with body:', req.body);
     const data = req.body.data || sampleBloodSugarData;
     console.log(`Analyzing ${data.length} blood sugar readings`);
     
