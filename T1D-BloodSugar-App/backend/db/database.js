@@ -37,6 +37,17 @@ function initializeDatabase() {
       )
     `;
     
+    // journal table
+    const createJournalTable = `
+      CREATE TABLE IF NOT EXISTS journal_entries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      )
+    `;
+
     db.serialize(() => {
       db.run(createUsersTable, (err) => {
         if (err) {
@@ -51,6 +62,15 @@ function initializeDatabase() {
           console.error('Error creating blood_sugar_data table:', err.message);
         } else {
           console.log('Blood sugar data table initialized');
+        }
+      });
+
+      // Run Journal
+      db.run(createJournalTable, (err) => {
+        if (err) {
+          console.error('Error creating journal_entries table:', err.message);
+        } else {
+          console.log('Journal entries table initialized');
         }
       });
     });
@@ -107,41 +127,54 @@ const userFunctions = {
   async verifyUser(identifier, password) {
     return new Promise((resolve, reject) => {
       try {
-        let field = 'username'; 
+        let field = 'username';
         if (identifier.includes('@')) {
           field = 'email';
+          console.log('Using email field for lookup');
         } else if (/^\+?\d{10,15}$/.test(identifier)) {
           field = 'phone';
+          console.log('Using phone field for lookup');
+        } else {
+          console.log('Using username field for lookup');
         }
         
-        const query = `SELECT * FROM users WHERE ${field} = ?`;
-        console.log('Executing query:', query, 'with value:', identifier);
+        const sql = `SELECT * FROM users WHERE ${field} = ?`;
+        console.log('Executing SQL:', sql, 'with identifier:', identifier);
         
-        db.get(query, [identifier], async (err, user) => {
+        db.get(sql, [identifier], async (err, user) => {
           if (err) {
-            console.error('Error verifying user:', err.message);
-            resolve({ success: false, error: err.message });
+            console.error('Database error:', err);
+            resolve({ success: false, error: 'Database error' });
             return;
           }
           
           if (!user) {
-            console.log('User not found with identifier:', identifier);
-            resolve({ success: false, error: 'User not found' });
+            console.log('No user found with identifier:', identifier);
+            resolve({ success: false, error: 'Invalid credentials' });
             return;
           }
+
+          console.log('User found:', { ...user, password_hash: '[REDACTED]' });
           
-          const passwordMatch = await bcrypt.compare(password, user.password_hash);
-          
-          if (passwordMatch) {
-            const { password_hash, ...userWithoutPassword } = user;
-            resolve({ success: true, user: userWithoutPassword });
-          } else {
-            resolve({ success: false, error: 'Invalid password' });
+          try {
+            console.log('Comparing passwords...');
+            const passwordMatch = await bcrypt.compare(password, user.password_hash);
+            console.log('Password match result:', passwordMatch);
+            
+            if (passwordMatch) {
+              const { password_hash, ...userWithoutPassword } = user;
+              resolve({ success: true, user: userWithoutPassword });
+            } else {
+              resolve({ success: false, error: 'Invalid credentials' });
+            }
+          } catch (bcryptError) {
+            console.error('Password comparison error:', bcryptError);
+            resolve({ success: false, error: 'Authentication error' });
           }
         });
       } catch (error) {
-        console.error('Error verifying user:', error);
-        resolve({ success: false, error: error.message });
+        console.error('Verification error:', error);
+        resolve({ success: false, error: 'Server error' });
       }
     });
   },

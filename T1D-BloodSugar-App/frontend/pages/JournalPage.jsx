@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/JournalPage.css";
 
@@ -7,10 +7,46 @@ const JournalPage = () => {
   const [newEntry, setNewEntry] = useState("");
   const navigate = useNavigate();
 
-  const handleAddEntry = () => {
-    if (newEntry.trim()) {
-      setEntries([...entries, newEntry]);
-      setNewEntry("");
+  useEffect(() => {
+    fetchEntries();
+  }, []);
+
+  const fetchEntries = async () => {
+    try {
+      const userId = JSON.parse(localStorage.getItem('user')).id;
+      const port = localStorage.getItem('backendPort') || 5000;
+      const response = await fetch(`http://localhost:${port}/api/journal/entries/${userId}`);
+      const data = await response.json();
+      setEntries(data);
+    } catch (error) {
+      console.error('Error fetching journal entries:', error);
+    }
+  };
+
+  const handleAddEntry = async () => {
+    if (!newEntry.trim()) return;
+
+    try {
+      const userId = JSON.parse(localStorage.getItem('user')).id;
+      const port = localStorage.getItem('backendPort') || 5000;
+      
+      const response = await fetch(`http://localhost:${port}/api/journal/entries`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          content: newEntry
+        }),
+      });
+
+      if (response.ok) {
+        setNewEntry("");
+        fetchEntries(); // Refresh entries after adding new one
+      }
+    } catch (error) {
+      console.error('Error adding journal entry:', error);
     }
   };
 
@@ -43,9 +79,10 @@ const JournalPage = () => {
         />
         <button onClick={handleAddEntry}>Add Entry</button>
         <div className="entries">
-          {entries.map((entry, index) => (
-            <div key={index} className="entry">
-              {entry}
+          {entries.map((entry) => (
+            <div key={entry.id} className="entry">
+              <p>{entry.content}</p>
+              <small>{new Date(entry.created_at).toLocaleString()}</small>
             </div>
           ))}
         </div>
