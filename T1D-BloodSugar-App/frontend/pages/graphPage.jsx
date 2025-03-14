@@ -316,9 +316,11 @@ function GraphPage() {
   return (
     <div className="container">
       <h1>Blood Sugar Analysis</h1>
-      
+
+      <div className="bloodSugarInput">
       {/* Add the BloodSugarInputForm component */}
-      <BloodSugarInputForm onSubmitSuccess={handleFormSubmitSuccess} />
+        <BloodSugarInputForm onSubmitSuccess={handleFormSubmitSuccess} />
+      </div>
       
       <div className="button-group">
         <button 
