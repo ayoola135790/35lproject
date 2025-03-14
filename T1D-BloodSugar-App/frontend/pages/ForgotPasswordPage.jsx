@@ -4,9 +4,7 @@ import "../styles/ForgotPasswordPage.css";
 
 const ForgotPasswordPage = () => {
   const [username, setUsername] = useState("");
-  const [securityQuestion, setSecurityQuestion] = useState("");
   const [securityAnswer, setSecurityAnswer] = useState("");
-  const [showSecurityQuestion, setShowSecurityQuestion] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -15,7 +13,13 @@ const ForgotPasswordPage = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    
+
+    if (!username || !securityAnswer) {
+      setError("All fields are required.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const port = localStorage.getItem('backendPort') || 5000;
       const response = await fetch(`http://localhost:${port}/auth/forgot-password`, {
@@ -23,12 +27,13 @@ const ForgotPasswordPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ identifier: username, securityQuestion, securityAnswer }),
+        body: JSON.stringify({ identifier: username, securityAnswer }),
       });
-      
+
       const data = await response.json();
-      
-      if (data.success) {
+      console.log('Response data:', data); // Add logging to debug the response
+
+      if (data.success && data.securityAnswerMatch) {
         localStorage.setItem('resetUsername', username);
         navigate("/new-password");
       } else {
@@ -52,10 +57,10 @@ const ForgotPasswordPage = () => {
             <circle cx="45" cy="35" r="3" fill="#ffffff"/>
             <circle cx="55" cy="35" r="3" fill="#ffffff"/>
             <circle cx="50" cy="40" r="3" fill="#ffffff"/>
-            <line x1="50" y1="30" x2="45" y2="35" stroke="#ffffff" stroke-width="2"/>
-            <line x1="50" y1="30" x2="55" y2="35" stroke="#ffffff" stroke-width="2"/>
-            <line x1="45" y1="35" x2="50" y2="40" stroke="#ffffff" stroke-width="2"/>
-            <line x1="55" y1="35" x2="50" y2="40" stroke="#ffffff" stroke-width="2"/>
+            <line x1="50" y1="30" x2="45" y2="35" stroke="#ffffff" strokeWidth="2"/>
+            <line x1="50" y1="30" x2="55" y2="35" stroke="#ffffff" strokeWidth="2"/>
+            <line x1="45" y1="35" x2="50" y2="40" stroke="#ffffff" strokeWidth="2"/>
+            <line x1="55" y1="35" x2="50" y2="40" stroke="#ffffff" strokeWidth="2"/>
           </svg>
           <h1>GlucoLog</h1>
         </div>
@@ -70,33 +75,15 @@ const ForgotPasswordPage = () => {
             onChange={(e) => setUsername(e.target.value)}
             required
           />
-          {showSecurityQuestion && (
-            <>
-              <input
-                type="text"
-                placeholder="Security Question"
-                value={securityQuestion}
-                onChange={(e) => setSecurityQuestion(e.target.value)}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Security Answer"
-                value={securityAnswer}
-                onChange={(e) => setSecurityAnswer(e.target.value)}
-                required
-              />
-            </>
-          )}
+          <input
+            type="text"
+            placeholder="Security Answer"
+            value={securityAnswer}
+            onChange={(e) => setSecurityAnswer(e.target.value)}
+            required
+          />
           <button type="submit" disabled={loading}>
             {loading ? "Processing..." : "Reset Password"}
-          </button>
-          <button 
-            type="button" 
-            onClick={() => setShowSecurityQuestion(true)} 
-            style={{ marginTop: '10px' }}
-          >
-            Create Security Question
           </button>
         </form>
 

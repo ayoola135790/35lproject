@@ -22,6 +22,7 @@ function initializeDatabase() {
         username TEXT UNIQUE,
         phone TEXT UNIQUE,
         password_hash TEXT,
+        security_answer TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
@@ -37,7 +38,6 @@ function initializeDatabase() {
       )
     `;
     
-    // journal table
     const createJournalTable = `
       CREATE TABLE IF NOT EXISTS journal_entries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -65,12 +65,17 @@ function initializeDatabase() {
         }
       });
 
-      // Run Journal
       db.run(createJournalTable, (err) => {
         if (err) {
           console.error('Error creating journal_entries table:', err.message);
         } else {
           console.log('Journal entries table initialized');
+        }
+      });
+
+      db.run(`ALTER TABLE users ADD COLUMN security_answer TEXT`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+          console.error('Error adding security_answer column:', err.message);
         }
       });
     });
@@ -88,13 +93,13 @@ async function hashPassword(password) {
 const userFunctions = {
   async createUser(userData) {
     return new Promise((resolve, reject) => {
-      const { name, password, email, username, phone } = userData;
+      const { name, password, email, username, phone, securityAnswer } = userData;
       
       try {
         hashPassword(password).then(passwordHash => {
           const insertUser = `
-            INSERT INTO users (name, email, username, phone, password_hash)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO users (name, email, username, phone, password_hash, security_answer)
+            VALUES (?, ?, ?, ?, ?, ?)
           `;
           
           const params = [ 
@@ -102,13 +107,19 @@ const userFunctions = {
             email || null,
             username || null,
             phone || null,
-            passwordHash
+            passwordHash,
+            securityAnswer
           ];
           
           db.run(insertUser, params, function(err) {
             if (err) {
-              console.error('Error creating user:', err.message);
-              resolve({ success: false, error: err.message });
+              if (err.message.includes('UNIQUE constraint failed')) {
+                console.error('Unique constraint error:', err.message);
+                resolve({ success: false, error: 'User with this email, username, or phone already exists' });
+              } else {
+                console.error('Error creating user:', err.message);
+                resolve({ success: false, error: err.message });
+              }
             } else {
               resolve({ success: true, id: this.lastID });
             }
@@ -175,6 +186,39 @@ const userFunctions = {
       } catch (error) {
         console.error('Verification error:', error);
         resolve({ success: false, error: 'Server error' });
+      }
+    });
+  },
+
+  async verifySecurityAnswer(identifier, securityAnswer) {
+    return new Promise((resolve, reject) => {
+      try {
+        let field = 'username';
+        if (identifier.includes('@')) {
+          field = 'email';
+        } else if (/^\+?\d{10,15}$/.test(identifier)) {
+          field = 'phone';
+        }
+        const query = `SELECT * FROM users WHERE ${field} = ?`;
+        db.get(query, [identifier], (err, user) => {
+          if (err) {
+            console.error('Error verifying security answer:', err.message);
+            resolve({ success: false, error: err.message });
+            return;
+          }
+          if (!user) {
+            resolve({ success: false, error: 'User not found' });
+            return;
+          }
+          if (user.security_answer === securityAnswer) {
+            resolve({ success: true });
+          } else {
+            resolve({ success: false, error: 'Incorrect security answer' });
+          }
+        });
+      } catch (error) {
+        console.error('Error verifying security answer:', error);
+        resolve({ success: false, error: error.message });
       }
     });
   },
