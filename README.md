@@ -44,6 +44,8 @@ To clone and run this project, follow these steps:
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/ayoola135790/35lproject
+# After clone you must create a .env for chatgpt 
+#OPENAI_API_KEY=
 cd your-repo-name
 ```
 
