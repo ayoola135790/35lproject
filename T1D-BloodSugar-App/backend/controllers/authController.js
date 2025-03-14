@@ -1,13 +1,12 @@
 const { userFunctions } = require('../db/database');
 
-
 exports.signup = async (req, res) => {
  try {
-   const { name, identifier, password, confirmPassword } = req.body;
+   const { name, identifier, password, confirmPassword, securityAnswer } = req.body;
   
    console.log('Signup request received:', { name, identifier });
   
-   if (!name || !identifier || !password) {
+   if (!name || !identifier || !password || !securityAnswer) {
      return res.status(400).json({ success: false, error: 'All fields are required' });
    }
   
@@ -15,7 +14,7 @@ exports.signup = async (req, res) => {
      return res.status(400).json({ success: false, error: 'Passwords do not match' });
    }
   
-   let userData = { name, password };
+   let userData = { name, password, securityAnswer };
   
    if (identifier.includes('@')) {
      userData.email = identifier;
@@ -40,7 +39,6 @@ exports.signup = async (req, res) => {
    res.status(500).json({ success: false, error: 'Server error' });
  }
 };
-
 
 exports.login = async (req, res) => {
  try {
@@ -74,51 +72,45 @@ exports.login = async (req, res) => {
 }
 };
 
-
 exports.forgotPassword = async (req, res) => {
-try {
-  const { identifier } = req.body;
+ try {
+   const { identifier, securityAnswer } = req.body;
  
-  if (!identifier) {
-    return res.status(400).json({ success: false, error: 'Username is required' });
-  }
+   if (!identifier || !securityAnswer) {
+     return res.status(400).json({ success: false, error: 'Identifier and security answer are required' });
+   }
  
-  const result = await userFunctions.findUserByIdentifier(identifier);
+   const result = await userFunctions.verifySecurityAnswer(identifier, securityAnswer);
  
-  if (result.success) {
-    res.status(200).json({
-      success: true,
-      message: 'User found, proceed to reset password',
-      userId: result.user.id
-    });
-  } else {
-    res.status(404).json({ success: false, error: 'User not found' });
-  }
-} catch (error) {
-  console.error('Forgot password error:', error);
-  res.status(500).json({ success: false, error: 'Server error' });
-}
+   if (result.success) {
+     res.status(200).json({ success: true, securityAnswerMatch: true, message: 'Security answer verified, proceed to reset password' });
+   } else {
+     res.status(400).json({ success: false, securityAnswerMatch: false, error: result.error });
+   }
+ } catch (error) {
+   console.error('Forgot password error:', error);
+   res.status(500).json({ success: false, error: 'Server error' });
+ }
 };
 
-
 exports.resetPassword = async (req, res) => {
-try {
-  const { username, newPassword } = req.body;
+ try {
+   const { username, newPassword } = req.body;
  
-  if (!username || !newPassword) {
-    return res.status(400).json({ success: false, error: 'Username and new password are required' });
-  }
+   if (!username || !newPassword) {
+     return res.status(400).json({ success: false, error: 'Username and new password are required' });
+   }
  
-  const result = await userFunctions.updateUserPassword(username, newPassword);
+   const result = await userFunctions.updateUserPassword(username, newPassword);
   
-  if (result.success) {
-    res.status(200).json({ success: true, message: 'Password updated successfully' });
-  } else {
-    res.status(400).json({ success: false, error: result.error });
-  }
-} catch (error) {
-  console.error('Reset password error:', error);
-  res.status(500).json({ success: false, error: 'Server error' });
-}
+   if (result.success) {
+     res.status(200).json({ success: true, message: 'Password updated successfully' });
+   } else {
+     res.status(400).json({ success: false, error: result.error });
+   }
+ } catch (error) {
+   console.error('Reset password error:', error);
+   res.status(500).json({ success: false, error: 'Server error' });
+ }
 };
 
